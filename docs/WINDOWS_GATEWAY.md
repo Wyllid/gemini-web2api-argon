@@ -74,7 +74,9 @@ curl http://127.0.0.1:8007/v1/models -H "Authorization: Bearer <PROXY_API_KEY>"
 ```
 
 With `PROXY_API_KEY` set, requests without the key (or with a wrong one) are dropped at the connection level.
-Startup at login: see "Windows hidden startup" in the README (registry `Run` entry with `--hidden`).
+Startup at login: the console build has no `--hidden` flag (that is the desktop build). Copy `scripts/windows/start-gateway.ps1` next to the
+executable and register it with `scripts/windows/register-login-start.ps1 -RunDir <run dir>` (adds `HKCU\...\Run\Gemini-Gateway`;
+`-Remove` deletes it). The launcher does not start a second copy. Tested by running the registered command, not by rebooting.
 
 ## Using it from a coding agent (omp example)
 
@@ -110,7 +112,7 @@ happens when Chrome's own sign-in is revoked.
 
 ## Operations
 
-- Logs: stdout of the process (`INFO/WARN` lines per request: account chosen, first output, cooldowns, renewals).
+- Logs: `data\logs\gemini-web2api.log` next to the executable (rotated by the program; `INFO/WARN` lines per request: account chosen, first output, cooldowns, renewals).
 - Add or remove accounts in the admin UI (`http://127.0.0.1:8007/`) or with `setup`; restart to pick up new `auth/` directories.
 - If an account shows "pending authentication", sign in again in Chrome and re-run `setup --email ...`.
 - Never commit `auth/`, `.env` or `data/`.
