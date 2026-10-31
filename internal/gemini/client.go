@@ -337,7 +337,9 @@ func (c *Client) stream(ctx context.Context, request GenerateRequest, emit func(
 	request.Gem = model.Gem
 	request.tools = bootstrap.Catalog.toolSelection(request.Feature, request.AspectRatio)
 	request.personalIntelligence = bootstrap.Catalog.personalIntelligence
-	temporaryChat := false // 禁用临时无痕会话，避免 3.8-flash 等模型报 Sorry something went wrong 并支持断流取回
+	// Temporary Chat keeps API traffic out of the account's visible history unless GEMINI_SAVE_HISTORY=true
+	// (the argon snapshot had it hard-disabled; restored from upstream Mag1cFall/Gemini-Web2API).
+	temporaryChat := useTemporaryChat(c.guest, c.saveHistory, request.Feature)
 	if allowRefresh && c.freeTier() {
 		if listed, signedIn, err := c.listAccountsSignedIn(ctx); err == nil && listed && !signedIn {
 			return c.restream(ctx, version, request, emit)

@@ -63,6 +63,13 @@ func (f Feature) savedChatOnly() bool {
 	return f == FeatureTask || f == FeatureDeepResearch || f == FeatureVideo
 }
 
+// useTemporaryChat decides whether a generation request is sent as a Temporary Chat, which keeps it out of the
+// account's visible history. Guests have no history, saveHistory (GEMINI_SAVE_HISTORY) opts in to saved chats, and
+// features that read their result back from the conversation need a regular chat.
+func useTemporaryChat(guest, saveHistory bool, feature Feature) bool {
+	return !guest && !saveHistory && !feature.savedChatOnly()
+}
+
 // GenerateRequest 表示一次网页协议生成请求
 type GenerateRequest struct {
 	Prompt        string
